@@ -1,5 +1,6 @@
 /********************************************/
 // SCE-UA Method
+// 連続計算用
 // August 9th 2020
 /********************************************/
 
@@ -316,6 +317,11 @@ int main (){
   int i,j,k,ii,jj,kk;
   int *selectq; // 抽出個体のフラグ
 
+  // 出力データファイルの設定
+  ofstream ofs("./out6.txt");
+  ofs<<"number of evaluation\tnumber of loop\tobject function value"<<endl;
+  ofstream ofs_para("./out6_para.txt");
+
   // 配列の確保
   A = new double**[p+1];          // s個の個体をm個の個体を含むp個の集団の配列
   for(k=0;k<=p;k++){
@@ -359,8 +365,12 @@ int main (){
     //paramin[i]=-512.;
   }
 
+  int countkk=0;
+  for(int kk=1;kk<=100;kk++){
+
   // パラメータサンプルのランダム生成
-  srand(time(NULL));
+  srand(kk+(unsigned int)time(NULL));
+  rand();
   rand();
   rand();
   rand();
@@ -377,7 +387,7 @@ int main (){
   SortOrderIncrease(fx,x,s);
 
   loop = 0;       // ループ回数の初期化
-  while(fx[1]>10E-8 && loop<3000){
+  while(fx[1]>10E-8 && loop<10000){
     loop++;
     GroupDivision(A,x);
     Probably(prob);
@@ -397,12 +407,20 @@ int main (){
     MixAk(x,A);
     CalObjectiveFunction(fx,x,s);
     SortOrderIncrease(fx,x,s);  
-    cout<<2*s*loop<<" "<<loop<<" check1 "<<fx[1]<<" "<<fx[s]<<endl;
+    // 計算結果の出力
+    ofs<<2*s*loop<<"\t"<<loop<<"\t"<<fx[1]<<endl;
   }
-  cout<<"Finish Optimization "<<loop<<" "<<fx[1]<<endl;
+  cout<<"Finish Optimization "<<kk<<"\t"<<2*s*loop<<"\t"<<loop<<"\t"<<fx[1]<<"\t";
+  ofs_para<<kk<<"\t"<<2*s*loop<<"\t"<<loop<<"\t"<<fx[1]<<"\t";
   for(i=1;i<=n;i++){
-    cout<<i<<" "<<x[1][i]<<endl;
+    cout<<x[1][i]<<"\t";
+    ofs_para<<x[1][i]<<"\t";
   }
+  cout<<endl;
+  ofs_para<<endl;
+  if(fx[1]<=10E-8) countkk++;
+  }
+  ofs<<"Successful parameter search"<<countkk<<"/100"<<endl;
 
   return 0;
 }
